@@ -152,7 +152,7 @@ export function updateUser(id: string, patch: Partial<CurviUser>) {
     );
     if (taken) throw new Error("Este username já está em uso.");
   }
-  users[idx] = { ...users[idx], ...patch };
+  users[idx] = { ...(users[idx] as CurviUser), ...patch };
   writeUsers(users);
 }
 
