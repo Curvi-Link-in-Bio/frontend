@@ -235,7 +235,10 @@ function LinksPanel({
         <Button
           className="gold-gradient text-primary-foreground glow w-full font-bold"
           onClick={() => {
-            if (!title.trim() || !url.trim()) return toast.error("Informe título e URL.");
+            if (!title.trim() || !url.trim()) {
+              toast.error("Informe título e URL.");
+              return;
+            }
             onChange([
               ...links,
               {
