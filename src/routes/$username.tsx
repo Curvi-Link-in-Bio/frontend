@@ -46,11 +46,20 @@ function PublicPage() {
 
   const initials = (user.displayName || user.username).slice(0, 2).toUpperCase();
 
+  const bg = user.backgroundImage ?? "";
+  const backgroundImage = bg ? (bg.startsWith("data:") ? `url("${bg}")` : bg) : undefined;
+
   return (
     <main
       className="flex min-h-screen flex-col items-center px-6 py-14"
-      style={{ backgroundColor: user.backgroundColor }}
+      style={{
+        backgroundColor: user.backgroundColor,
+        backgroundImage,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
     >
+
       <div className="w-full max-w-md text-center">
         <div
           className="mx-auto flex size-24 items-center justify-center overflow-hidden rounded-full border-2 text-xl font-bold text-white"
