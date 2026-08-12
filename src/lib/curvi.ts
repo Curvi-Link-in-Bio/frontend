@@ -21,6 +21,8 @@ export type CurviUser = {
   theme: ThemeId;
   buttonColor: string;
   backgroundColor: string;
+  /** CSS background-image value: url("data:...") or a gradient */
+  backgroundImage: string;
   plan: "free" | "pro";
   links: CurviLink[];
 };
@@ -31,6 +33,34 @@ export const THEMES: { id: ThemeId; name: string; bg: string; button: string }[]
   { id: "onyx-silver", name: "Onyx Silver", bg: "#121214", button: "#C0C0C0" },
   { id: "rose-gold", name: "Rose Gold", bg: "#1C1719", button: "#E0A08A" },
 ];
+
+export const BACKGROUND_PRESETS: { id: string; name: string; value: string }[] = [
+  { id: "none", name: "Sem fundo", value: "" },
+  {
+    id: "gold-glow",
+    name: "Brilho Dourado",
+    value:
+      "radial-gradient(circle at 20% 0%, rgba(212,175,55,0.35), transparent 55%), radial-gradient(circle at 80% 100%, rgba(230,200,117,0.25), transparent 55%), linear-gradient(160deg, #18181B, #101012)",
+  },
+  {
+    id: "champagne-silk",
+    name: "Seda Champagne",
+    value: "linear-gradient(135deg, #2A2520 0%, #3A3128 45%, #1B1815 100%)",
+  },
+  {
+    id: "rose-velvet",
+    name: "Veludo Rosé",
+    value:
+      "radial-gradient(circle at 50% 0%, rgba(224,160,138,0.35), transparent 60%), linear-gradient(180deg, #221A1C, #121012)",
+  },
+  {
+    id: "onyx-waves",
+    name: "Ondas Onyx",
+    value:
+      "repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 12px, transparent 12px 24px), linear-gradient(160deg, #121214, #232326)",
+  },
+];
+
 
 const DB_KEY = "curvi.users";
 const SESSION_KEY = "curvi.session";
@@ -68,6 +98,7 @@ function seedIfEmpty() {
     theme: "gold-noir",
     buttonColor: "#D4AF37",
     backgroundColor: "#18181B",
+    backgroundImage: "",
     plan: "free",
     links: [
       { id: "l1", title: "Meu Instagram", url: "https://instagram.com", active: true, clicks: 128 },
@@ -99,6 +130,7 @@ export function signUp(email: string, password: string, username: string) {
     theme: "gold-noir",
     buttonColor: "#D4AF37",
     backgroundColor: "#18181B",
+    backgroundImage: "",
     plan: "free",
     links: [],
   };

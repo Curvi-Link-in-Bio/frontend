@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageUpload } from "@/components/ImageUpload";
 import {
+  BACKGROUND_PRESETS,
   THEMES,
   signOut,
   updateUser,
@@ -109,13 +111,17 @@ function Dashboard() {
               <Textarea defaultValue={user.bio} onBlur={(e) => save({ bio: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>URL da foto de perfil</Label>
-              <Input
-                defaultValue={user.avatar}
-                placeholder="https://..."
-                onBlur={(e) => save({ avatar: e.target.value })}
+              <Label>Foto de perfil</Label>
+              <ImageUpload
+                value={user.avatar}
+                onChange={(v) => save({ avatar: v })}
+                maxSizeMB={1}
+                round
+                previewClassName="size-28"
+                label="Enviar foto"
               />
             </div>
+
             <p className="text-muted-foreground text-xs">As alterações salvam ao sair do campo.</p>
           </div>
         </TabsContent>
@@ -162,6 +168,44 @@ function Dashboard() {
               />
             </div>
           </div>
+          <div className="card-gold space-y-4 p-5">
+            <p className="text-sm tracking-widest uppercase">Imagem de fundo</p>
+            <ImageUpload
+              value={user.backgroundImage?.startsWith("data:") ? user.backgroundImage : ""}
+              onChange={(v) => save({ backgroundImage: v })}
+              maxSizeMB={3}
+              previewClassName="h-40 w-full"
+              label="Enviar fundo"
+            />
+            <div>
+              <p className="text-muted-foreground mb-3 text-xs tracking-widest uppercase">
+                Fundos padrão
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                {BACKGROUND_PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => save({ backgroundImage: p.value })}
+                    className={`overflow-hidden rounded-xl border text-left transition ${
+                      (user.backgroundImage ?? "") === p.value ? "border-gold glow" : "border-border"
+                    }`}
+                  >
+                    <span
+                      className="block h-14 w-full"
+                      style={{
+                        background: p.value || user.backgroundColor,
+                      }}
+                    />
+                    <span className="text-muted-foreground block px-2 py-1 text-[10px]">
+                      {p.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </TabsContent>
 
         <TabsContent value="plano" className="mt-5">
