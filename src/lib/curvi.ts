@@ -98,6 +98,7 @@ function seedIfEmpty() {
     theme: "gold-noir",
     buttonColor: "#D4AF37",
     backgroundColor: "#18181B",
+    backgroundImage: "",
     plan: "free",
     links: [
       { id: "l1", title: "Meu Instagram", url: "https://instagram.com", active: true, clicks: 128 },
@@ -129,6 +130,7 @@ export function signUp(email: string, password: string, username: string) {
     theme: "gold-noir",
     buttonColor: "#D4AF37",
     backgroundColor: "#18181B",
+    backgroundImage: "",
     plan: "free",
     links: [],
   };
