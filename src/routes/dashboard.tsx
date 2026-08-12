@@ -109,13 +109,17 @@ function Dashboard() {
               <Textarea defaultValue={user.bio} onBlur={(e) => save({ bio: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>URL da foto de perfil</Label>
-              <Input
-                defaultValue={user.avatar}
-                placeholder="https://..."
-                onBlur={(e) => save({ avatar: e.target.value })}
+              <Label>Foto de perfil</Label>
+              <ImageUpload
+                value={user.avatar}
+                onChange={(v) => save({ avatar: v })}
+                maxSizeMB={1}
+                round
+                previewClassName="size-28"
+                label="Enviar foto"
               />
             </div>
+
             <p className="text-muted-foreground text-xs">As alterações salvam ao sair do campo.</p>
           </div>
         </TabsContent>
