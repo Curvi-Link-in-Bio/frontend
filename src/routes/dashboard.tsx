@@ -17,7 +17,14 @@ import {
   type CurviLink,
   type ThemeId,
 } from "@/lib/curvi";
-import { ArrowDown, ArrowUp, ExternalLink, LogOut, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, ExternalLink, LogOut, Plus, Trash2, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -84,7 +91,12 @@ function Dashboard() {
         </TabsList>
 
         <TabsContent value="links" className="mt-5">
-          <LinksPanel links={user.links} onChange={setLinks} />
+          <LinksPanel
+            links={user.links}
+            categories={user.categories}
+            onChange={setLinks}
+            onCategoriesChange={(categories) => save({ categories })}
+          />
         </TabsContent>
 
         <TabsContent value="perfil" className="mt-5 space-y-4">
@@ -248,23 +260,40 @@ function Dashboard() {
 
 function LinksPanel({
   links,
+  categories,
   onChange,
+  onCategoriesChange,
 }: {
   links: CurviLink[];
+  categories: string[];
   onChange: (links: CurviLink[]) => void;
+  onCategoriesChange: (categories: string[]) => void;
 }) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [category, setCategory] = useState(categories[0] ?? "Geral");
+  const [newCategory, setNewCategory] = useState("");
+  const [creating, setCreating] = useState(false);
 
-  const move = (i: number, dir: -1 | 1) => {
+  const update = (id: string, patch: Partial<CurviLink>) =>
+    onChange(links.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+
+  const move = (id: string, dir: -1 | 1) => {
     const next = [...links];
+    const i = next.findIndex((l) => l.id === id);
     const j = i + dir;
-    if (j < 0 || j >= next.length) return;
+    if (i < 0 || j < 0 || j >= next.length) return;
     const a = next[i]!;
     next[i] = next[j]!;
     next[j] = a;
     onChange(next);
   };
+
+  const grouped = categories
+    .concat(links.map((l) => l.category).filter((c) => !categories.includes(c)))
+    .filter((c, i, arr) => arr.indexOf(c) === i)
+    .map((c) => ({ category: c, items: links.filter((l) => l.category === c) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <div className="space-y-4">
@@ -276,6 +305,57 @@ function LinksPanel({
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
+
+        <div className="space-y-2">
+          <Label>Categoria</Label>
+          {creating ? (
+            <div className="flex gap-2">
+              <Input
+                placeholder="Nova categoria"
+                value={newCategory}
+                maxLength={30}
+                onChange={(e) => setNewCategory(e.target.value)}
+              />
+              <Button
+                variant="outline"
+                className="border-gold/50"
+                onClick={() => {
+                  const c = newCategory.trim();
+                  if (!c) return;
+                  if (!categories.includes(c)) onCategoriesChange([...categories, c]);
+                  setCategory(c);
+                  setNewCategory("");
+                  setCreating(false);
+                  toast.success(`Categoria "${c}" criada.`);
+                }}
+              >
+                Criar
+              </Button>
+              <Button variant="ghost" onClick={() => setCreating(false)}>
+                <X className="size-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger className="flex-1">
+                  <SelectValue placeholder="Selecione a categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button variant="outline" className="border-gold/50" onClick={() => setCreating(true)}>
+                <Plus className="size-4" /> Nova
+              </Button>
+            </div>
+          )}
+        </div>
+
         <Button
           className="gold-gradient text-primary-foreground glow w-full font-bold"
           onClick={() => {
@@ -291,6 +371,7 @@ function LinksPanel({
                 url: url.trim().startsWith("http") ? url.trim() : `https://${url.trim()}`,
                 active: true,
                 clicks: 0,
+                category: category || "Geral",
               },
             ]);
             setTitle("");
@@ -307,52 +388,68 @@ function LinksPanel({
           Nenhum link ainda. Adicione o primeiro acima.
         </p>
       ) : (
-        links.map((l, i) => (
-          <div key={l.id} className="card-gold space-y-3 p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <Input
-                  defaultValue={l.title}
-                  onBlur={(e) =>
-                    onChange(
-                      links.map((x) => (x.id === l.id ? { ...x, title: e.target.value } : x)),
-                    )
-                  }
-                  className="mb-2"
-                />
-                <Input
-                  defaultValue={l.url}
-                  onBlur={(e) =>
-                    onChange(links.map((x) => (x.id === l.id ? { ...x, url: e.target.value } : x)))
-                  }
-                />
+        grouped.map((g) => (
+          <section key={g.category} className="space-y-3">
+            <p className="text-gold text-xs tracking-[0.25em] uppercase">
+              {g.category} · {g.items.length}
+            </p>
+            {g.items.map((l) => (
+              <div key={l.id} className="card-gold space-y-3 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <Input
+                      defaultValue={l.title}
+                      onBlur={(e) => update(l.id, { title: e.target.value })}
+                      className="mb-2"
+                    />
+                    <Input
+                      defaultValue={l.url}
+                      onBlur={(e) => update(l.id, { url: e.target.value })}
+                      className="mb-2"
+                    />
+                    <Select value={l.category} onValueChange={(v) => update(l.id, { category: v })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories
+                          .concat(categories.includes(l.category) ? [] : [l.category])
+                          .map((c) => (
+                            <SelectItem key={c} value={c}>
+                              {c}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Switch
+                    checked={l.active}
+                    onCheckedChange={(v) => update(l.id, { active: v })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gold text-xs tracking-wider uppercase">
+                    {l.clicks} cliques
+                  </span>
+                  <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => move(l.id, -1)}>
+                      <ArrowUp className="size-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => move(l.id, 1)}>
+                      <ArrowDown className="size-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => onChange(links.filter((x) => x.id !== l.id))}
+                    >
+                      <Trash2 className="text-destructive size-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <Switch
-                checked={l.active}
-                onCheckedChange={(v) =>
-                  onChange(links.map((x) => (x.id === l.id ? { ...x, active: v } : x)))
-                }
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-gold text-xs tracking-wider uppercase">{l.clicks} cliques</span>
-              <div className="flex gap-1">
-                <Button size="icon" variant="ghost" onClick={() => move(i, -1)}>
-                  <ArrowUp className="size-4" />
-                </Button>
-                <Button size="icon" variant="ghost" onClick={() => move(i, 1)}>
-                  <ArrowDown className="size-4" />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => onChange(links.filter((x) => x.id !== l.id))}
-                >
-                  <Trash2 className="text-destructive size-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+            ))}
+          </section>
         ))
       )}
     </div>
