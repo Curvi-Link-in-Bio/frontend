@@ -6,6 +6,19 @@ export type CurviLink = {
   url: string;
   active: boolean;
   clicks: number;
+  category: string;
+};
+
+export const DEFAULT_CATEGORIES = ["Redes Sociais", "Produtos", "Conteúdo", "Contato"];
+
+export const SUPPORT_EMAIL = "suporte@curvi.link";
+
+export type CurviReview = {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: number;
 };
 
 export type ThemeId = "gold-noir" | "champagne" | "onyx-silver" | "rose-gold";
@@ -24,7 +37,9 @@ export type CurviUser = {
   /** CSS background-image value: url("data:...") or a gradient */
   backgroundImage: string;
   plan: "free" | "pro";
+  paymentMethod?: string;
   links: CurviLink[];
+  categories: string[];
 };
 
 export const THEMES: { id: ThemeId; name: string; bg: string; button: string }[] = [
@@ -63,6 +78,7 @@ export const BACKGROUND_PRESETS: { id: string; name: string; value: string }[] =
 
 
 const DB_KEY = "curvi.users";
+const REVIEWS_KEY = "curvi.reviews";
 const SESSION_KEY = "curvi.session";
 const EVENT = "curvi:change";
 
@@ -73,7 +89,12 @@ function isBrowser() {
 export function readUsers(): CurviUser[] {
   if (!isBrowser()) return [];
   try {
-    return JSON.parse(localStorage.getItem(DB_KEY) ?? "[]") as CurviUser[];
+    const raw = JSON.parse(localStorage.getItem(DB_KEY) ?? "[]") as CurviUser[];
+    return raw.map((u) => ({
+      ...u,
+      categories: u.categories?.length ? u.categories : [...DEFAULT_CATEGORIES],
+      links: (u.links ?? []).map((l) => ({ ...l, category: l.category || "Geral" })),
+    }));
   } catch {
     return [];
   }
@@ -100,10 +121,11 @@ function seedIfEmpty() {
     backgroundColor: "#18181B",
     backgroundImage: "",
     plan: "free",
+    categories: [...DEFAULT_CATEGORIES],
     links: [
-      { id: "l1", title: "Meu Instagram", url: "https://instagram.com", active: true, clicks: 128 },
-      { id: "l2", title: "Loja Plus Size", url: "https://example.com/loja", active: true, clicks: 64 },
-      { id: "l3", title: "Consultoria de Estilo", url: "https://example.com/consultoria", active: false, clicks: 12 },
+      { id: "l1", title: "Meu Instagram", url: "https://instagram.com", active: true, clicks: 128, category: "Redes Sociais" },
+      { id: "l2", title: "Loja Plus Size", url: "https://example.com/loja", active: true, clicks: 64, category: "Produtos" },
+      { id: "l3", title: "Consultoria de Estilo", url: "https://example.com/consultoria", active: false, clicks: 12, category: "Conteúdo" },
     ],
   };
   localStorage.setItem(DB_KEY, JSON.stringify([demo]));
@@ -133,6 +155,7 @@ export function signUp(email: string, password: string, username: string) {
     backgroundImage: "",
     plan: "free",
     links: [],
+    categories: [...DEFAULT_CATEGORIES],
   };
   writeUsers([...users, user]);
   localStorage.setItem(SESSION_KEY, user.id);
@@ -224,4 +247,38 @@ export function useSession() {
 
 export function ensureSeed() {
   seedIfEmpty();
+}
+
+export function readReviews(): CurviReview[] {
+  if (!isBrowser()) return [];
+  try {
+    return JSON.parse(localStorage.getItem(REVIEWS_KEY) ?? "[]") as CurviReview[];
+  } catch {
+    return [];
+  }
+}
+
+export function addReview(review: Omit<CurviReview, "id" | "createdAt">) {
+  const list = readReviews();
+  const next: CurviReview = { ...review, id: crypto.randomUUID(), createdAt: Date.now() };
+  localStorage.setItem(REVIEWS_KEY, JSON.stringify([next, ...list]));
+  window.dispatchEvent(new Event(EVENT));
+  return next;
+}
+
+export function useReviews() {
+  const [reviews, setReviews] = useState<CurviReview[]>([]);
+
+  useEffect(() => {
+    const sync = () => setReviews(readReviews());
+    sync();
+    window.addEventListener(EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  return reviews;
 }
