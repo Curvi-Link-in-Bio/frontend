@@ -232,7 +232,13 @@ function Landing() {
           ))}
         </div>
 
+        <div className="mt-10 space-y-4">
+          <h2 className="text-center text-sm tracking-[0.25em] uppercase">Planos</h2>
+          <PlanCards current={user?.plan} />
+        </div>
+
         <p className="text-muted-foreground mt-8 text-center text-xs">
+
           Demo: <span className="text-gold">demo@curvi.link</span> / curvi123 —{" "}
           <Link to="/$username" params={{ username: "curvidemo" }} className="underline">
             ver página pública
