@@ -220,8 +220,9 @@ function Dashboard() {
               </div>
             </div>
           </div>
-
+          </div>
         </TabsContent>
+
 
         <TabsContent value="plano" className="mt-5 space-y-4">
           <p className="text-sm tracking-widest uppercase">
