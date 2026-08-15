@@ -220,39 +220,22 @@ function Dashboard() {
 
         </TabsContent>
 
-        <TabsContent value="plano" className="mt-5">
-          <div className="card-gold space-y-4 p-5">
-            <p className="text-sm tracking-widest uppercase">
-              Plano atual: <span className="text-gold">{user.plan === "pro" ? "PRO" : "FREE"}</span>
-            </p>
-            <p className="text-muted-foreground text-sm">
-              O Curvi PRO remove o selo do rodapé e libera temas exclusivos. O checkout acontece em
-              gateway externo (Stripe / Mercado Pago) e a liberação chega por webhook.
-            </p>
-            {user.plan === "free" ? (
-              <Button
-                className="gold-gradient text-primary-foreground glow w-full font-bold"
-                onClick={() => {
-                  toast.info("Redirecionando para o checkout externo...");
-                  setTimeout(() => {
-                    save({ plan: "pro" });
-                    toast.success("Webhook recebido: plano PRO ativado!");
-                  }, 1200);
-                }}
-              >
-                Assinar PRO — R$ 19,90/mês
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="border-silver/60 w-full"
-                onClick={() => save({ plan: "free" })}
-              >
-                Cancelar assinatura
-              </Button>
-            )}
-          </div>
+        <TabsContent value="plano" className="mt-5 space-y-4">
+          <p className="text-sm tracking-widest uppercase">
+            Plano atual: <span className="text-gold">{user.plan === "pro" ? "PRO" : "FREE"}</span>
+          </p>
+          <PlanCards current={user.plan} />
+          {user.plan === "pro" ? (
+            <Button
+              variant="outline"
+              className="border-silver/60 w-full"
+              onClick={() => save({ plan: "free", theme: "gold-noir", backgroundColor: "#18181B", buttonColor: "#D4AF37", backgroundImage: "" })}
+            >
+              Cancelar assinatura
+            </Button>
+          ) : null}
         </TabsContent>
+
       </Tabs>
     </main>
   );
