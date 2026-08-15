@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlanCards } from "@/components/PlanCards";
 import { updateUser, useSession } from "@/lib/curvi";
+
 import { Check, Copy, CreditCard, QrCode, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/checkout")({
