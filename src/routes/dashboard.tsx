@@ -97,10 +97,12 @@ function Dashboard() {
           <LinksPanel
             links={user.links}
             categories={user.categories}
+            plan={user.plan}
             onChange={setLinks}
             onCategoriesChange={(categories) => save({ categories })}
           />
         </TabsContent>
+
 
         <TabsContent value="perfil" className="mt-5 space-y-4">
           <div className="card-gold space-y-4 p-5">
