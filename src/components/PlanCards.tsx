@@ -3,7 +3,7 @@ import { Check, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PLAN_FEATURES } from "@/lib/curvi";
 
-export function PlanCards({ current }: { current?: "free" | "pro" }) {
+export function PlanCards({ current }: { current?: "free" | "pro" | undefined }) {
   const { free, pro } = PLAN_FEATURES;
 
   return (
