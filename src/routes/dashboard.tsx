@@ -363,11 +363,26 @@ function LinksPanel({
           )}
         </div>
 
+        {limitReached ? (
+          <p className="text-gold text-xs">
+            Limite do plano Free atingido ({FREE_LINK_LIMIT} links).{" "}
+            <Link to="/checkout" className="underline">
+              Assine o PRO
+            </Link>{" "}
+            para links ilimitados.
+          </p>
+        ) : null}
+
         <Button
           className="gold-gradient text-primary-foreground glow w-full font-bold"
+          disabled={limitReached}
           onClick={() => {
             if (!title.trim() || !url.trim()) {
               toast.error("Informe título e URL.");
+              return;
+            }
+            if (limitReached) {
+              toast.error(`No plano Free você pode ter até ${FREE_LINK_LIMIT} links.`);
               return;
             }
             onChange([
@@ -388,6 +403,7 @@ function LinksPanel({
         >
           <Plus className="size-4" /> Adicionar
         </Button>
+
       </div>
 
       {links.length === 0 ? (
