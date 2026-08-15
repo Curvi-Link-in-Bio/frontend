@@ -142,7 +142,25 @@ function Dashboard() {
         </TabsContent>
 
         <TabsContent value="tema" className="mt-5 space-y-4">
+          {user.plan === "free" ? (
+            <div className="card-gold border-gold/50 space-y-3 p-5">
+              <p className="text-sm tracking-widest uppercase">Tema bloqueado no Free</p>
+              <p className="text-muted-foreground text-xs">
+                No plano Free sua página usa o tema padrão <span className="text-gold">Gold Noir</span>.
+                Assine o PRO para trocar de tema, personalizar cores e usar imagem de fundo.
+              </p>
+              <Button asChild className="gold-gradient text-primary-foreground glow w-full font-bold">
+                <Link to="/checkout">Assinar PRO — R$ 19,90/mês</Link>
+              </Button>
+            </div>
+          ) : null}
+          <div
+            className={
+              user.plan === "free" ? "pointer-events-none space-y-4 opacity-40" : "space-y-4"
+            }
+          >
           <div className="card-gold p-5">
+
             <p className="mb-3 text-sm tracking-widest uppercase">Temas</p>
             <div className="grid grid-cols-2 gap-3">
               {THEMES.map((t) => (
