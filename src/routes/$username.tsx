@@ -78,30 +78,50 @@ function PublicPage() {
         <h1 className="mt-4 text-xl text-white uppercase">{user.displayName}</h1>
         {user.bio ? <p className="mt-2 text-sm text-white/70">{user.bio}</p> : null}
 
-        <div className="mt-8 space-y-3">
-          {user.links
-            .filter((l) => l.active)
-            .map((l) => (
-              <a
-                key={l.id}
-                href={l.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => registerClick(user.username, l.id)}
-                className="block rounded-xl px-5 py-4 text-sm font-bold tracking-wide uppercase transition hover:scale-[1.02]"
-                style={{
-                  background: user.buttonColor,
-                  color: "#121214",
-                  boxShadow: "0 0 15px rgba(212, 175, 55, 0.25)",
-                }}
-              >
-                {l.title}
-              </a>
-            ))}
-          {user.links.filter((l) => l.active).length === 0 ? (
-            <p className="text-sm text-white/50">Nenhum link ativo ainda.</p>
-          ) : null}
-        </div>
+        {(() => {
+          const active = user.links.filter((l) => l.active);
+          if (active.length === 0)
+            return <p className="mt-8 text-sm text-white/50">Nenhum link ativo ainda.</p>;
+          const order = (user.categories ?? []).concat(
+            active.map((l) => l.category || "Geral"),
+          );
+          const cats = order.filter((c, i, arr) => arr.indexOf(c) === i);
+          return (
+            <div className="mt-8 space-y-8">
+              {cats
+                .map((c) => ({ c, items: active.filter((l) => (l.category || "Geral") === c) }))
+                .filter((g) => g.items.length > 0)
+                .map((g) => (
+                  <section key={g.c} className="space-y-3">
+                    <p
+                      className="text-[11px] font-semibold tracking-[0.3em] uppercase"
+                      style={{ color: user.buttonColor }}
+                    >
+                      {g.c}
+                    </p>
+                    {g.items.map((l) => (
+                      <a
+                        key={l.id}
+                        href={l.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => registerClick(user.username, l.id)}
+                        className="block rounded-xl px-5 py-4 text-sm font-bold tracking-wide uppercase transition hover:scale-[1.02]"
+                        style={{
+                          background: user.buttonColor,
+                          color: "#121214",
+                          boxShadow: "0 0 15px rgba(212, 175, 55, 0.25)",
+                        }}
+                      >
+                        {l.title}
+                      </a>
+                    ))}
+                  </section>
+                ))}
+            </div>
+          );
+        })()}
+
 
         {user.plan === "free" ? (
           <footer className="mt-14">

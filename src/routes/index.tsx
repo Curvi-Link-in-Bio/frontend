@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlanCards } from "@/components/PlanCards";
 import { signIn, signInWithGoogle, signUp, resetPassword, useSession } from "@/lib/curvi";
+
 import { Crown, Link2, BarChart3, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -232,7 +234,13 @@ function Landing() {
           ))}
         </div>
 
+        <div className="mt-10 space-y-4">
+          <h2 className="text-center text-sm tracking-[0.25em] uppercase">Planos</h2>
+          <PlanCards current={user?.plan} />
+        </div>
+
         <p className="text-muted-foreground mt-8 text-center text-xs">
+
           Demo: <span className="text-gold">demo@curvi.link</span> / curvi123 —{" "}
           <Link to="/$username" params={{ username: "curvidemo" }} className="underline">
             ver página pública

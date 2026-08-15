@@ -282,3 +282,34 @@ export function useReviews() {
 
   return reviews;
 }
+
+export const FREE_LINK_LIMIT = 3;
+
+export const PLAN_FEATURES: {
+  free: { name: string; price: string; items: string[] };
+  pro: { name: string; price: string; items: string[] };
+} = {
+  free: {
+    name: "Curvi Free",
+    price: "R$ 0",
+    items: [
+      "Até 3 links ativos na sua página",
+      "Tema fixo Gold Noir (sem troca de tema)",
+      "Sem personalização de cores e fundo",
+      "Contagem de cliques dos links",
+      "Selo “Powered by Curvi” no rodapé",
+    ],
+  },
+  pro: {
+    name: "Curvi PRO",
+    price: "R$ 19,90/mês",
+    items: [
+      "Links ilimitados e organizados por categoria",
+      "Todos os temas: Gold Noir, Champagne, Onyx Silver e Rose Gold",
+      "Cores personalizadas e imagem de fundo própria",
+      "Fundos premium exclusivos",
+      "Página sem o selo Curvi",
+      "Suporte prioritário por e-mail",
+    ],
+  },
+};

@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlanCards } from "@/components/PlanCards";
 import { updateUser, useSession } from "@/lib/curvi";
+
 import { Check, Copy, CreditCard, QrCode, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/checkout")({
@@ -95,13 +97,10 @@ function Checkout() {
       </header>
 
       <section className="mx-auto max-w-lg px-5 pb-20">
-        <div className="card-gold mb-6 flex items-center justify-between p-5">
-          <div>
-            <p className="text-sm tracking-widest uppercase">Curvi PRO</p>
-            <p className="text-muted-foreground text-xs">Assinatura mensal, cancele quando quiser</p>
-          </div>
-          <p className="gold-text text-2xl font-bold">R$ 19,90</p>
+        <div className="mb-6">
+          <PlanCards current={user?.plan} />
         </div>
+
 
         <Tabs defaultValue="pix">
           <TabsList className="grid w-full grid-cols-2">

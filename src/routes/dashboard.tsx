@@ -8,8 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUpload } from "@/components/ImageUpload";
+import { PlanCards } from "@/components/PlanCards";
 import {
   BACKGROUND_PRESETS,
+  FREE_LINK_LIMIT,
   THEMES,
   signOut,
   updateUser,
@@ -17,6 +19,7 @@ import {
   type CurviLink,
   type ThemeId,
 } from "@/lib/curvi";
+
 import { ArrowDown, ArrowUp, ExternalLink, LogOut, Plus, Trash2, X } from "lucide-react";
 import {
   Select,
@@ -94,10 +97,12 @@ function Dashboard() {
           <LinksPanel
             links={user.links}
             categories={user.categories}
+            plan={user.plan}
             onChange={setLinks}
             onCategoriesChange={(categories) => save({ categories })}
           />
         </TabsContent>
+
 
         <TabsContent value="perfil" className="mt-5 space-y-4">
           <div className="card-gold space-y-4 p-5">
@@ -139,7 +144,25 @@ function Dashboard() {
         </TabsContent>
 
         <TabsContent value="tema" className="mt-5 space-y-4">
+          {user.plan === "free" ? (
+            <div className="card-gold border-gold/50 space-y-3 p-5">
+              <p className="text-sm tracking-widest uppercase">Tema bloqueado no Free</p>
+              <p className="text-muted-foreground text-xs">
+                No plano Free sua página usa o tema padrão <span className="text-gold">Gold Noir</span>.
+                Assine o PRO para trocar de tema, personalizar cores e usar imagem de fundo.
+              </p>
+              <Button asChild className="gold-gradient text-primary-foreground glow w-full font-bold">
+                <Link to="/checkout">Assinar PRO — R$ 19,90/mês</Link>
+              </Button>
+            </div>
+          ) : null}
+          <div
+            className={
+              user.plan === "free" ? "pointer-events-none space-y-4 opacity-40" : "space-y-4"
+            }
+          >
           <div className="card-gold p-5">
+
             <p className="mb-3 text-sm tracking-widest uppercase">Temas</p>
             <div className="grid grid-cols-2 gap-3">
               {THEMES.map((t) => (
@@ -217,42 +240,26 @@ function Dashboard() {
               </div>
             </div>
           </div>
-
-        </TabsContent>
-
-        <TabsContent value="plano" className="mt-5">
-          <div className="card-gold space-y-4 p-5">
-            <p className="text-sm tracking-widest uppercase">
-              Plano atual: <span className="text-gold">{user.plan === "pro" ? "PRO" : "FREE"}</span>
-            </p>
-            <p className="text-muted-foreground text-sm">
-              O Curvi PRO remove o selo do rodapé e libera temas exclusivos. O checkout acontece em
-              gateway externo (Stripe / Mercado Pago) e a liberação chega por webhook.
-            </p>
-            {user.plan === "free" ? (
-              <Button
-                className="gold-gradient text-primary-foreground glow w-full font-bold"
-                onClick={() => {
-                  toast.info("Redirecionando para o checkout externo...");
-                  setTimeout(() => {
-                    save({ plan: "pro" });
-                    toast.success("Webhook recebido: plano PRO ativado!");
-                  }, 1200);
-                }}
-              >
-                Assinar PRO — R$ 19,90/mês
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                className="border-silver/60 w-full"
-                onClick={() => save({ plan: "free" })}
-              >
-                Cancelar assinatura
-              </Button>
-            )}
           </div>
         </TabsContent>
+
+
+        <TabsContent value="plano" className="mt-5 space-y-4">
+          <p className="text-sm tracking-widest uppercase">
+            Plano atual: <span className="text-gold">{user.plan === "pro" ? "PRO" : "FREE"}</span>
+          </p>
+          <PlanCards current={user.plan} />
+          {user.plan === "pro" ? (
+            <Button
+              variant="outline"
+              className="border-silver/60 w-full"
+              onClick={() => save({ plan: "free", theme: "gold-noir", backgroundColor: "#18181B", buttonColor: "#D4AF37", backgroundImage: "" })}
+            >
+              Cancelar assinatura
+            </Button>
+          ) : null}
+        </TabsContent>
+
       </Tabs>
     </main>
   );
@@ -261,11 +268,13 @@ function Dashboard() {
 function LinksPanel({
   links,
   categories,
+  plan,
   onChange,
   onCategoriesChange,
 }: {
   links: CurviLink[];
   categories: string[];
+  plan: "free" | "pro";
   onChange: (links: CurviLink[]) => void;
   onCategoriesChange: (categories: string[]) => void;
 }) {
@@ -274,6 +283,8 @@ function LinksPanel({
   const [category, setCategory] = useState(categories[0] ?? "Geral");
   const [newCategory, setNewCategory] = useState("");
   const [creating, setCreating] = useState(false);
+  const limitReached = plan === "free" && links.length >= FREE_LINK_LIMIT;
+
 
   const update = (id: string, patch: Partial<CurviLink>) =>
     onChange(links.map((x) => (x.id === id ? { ...x, ...patch } : x)));
@@ -356,11 +367,26 @@ function LinksPanel({
           )}
         </div>
 
+        {limitReached ? (
+          <p className="text-gold text-xs">
+            Limite do plano Free atingido ({FREE_LINK_LIMIT} links).{" "}
+            <Link to="/checkout" className="underline">
+              Assine o PRO
+            </Link>{" "}
+            para links ilimitados.
+          </p>
+        ) : null}
+
         <Button
           className="gold-gradient text-primary-foreground glow w-full font-bold"
+          disabled={limitReached}
           onClick={() => {
             if (!title.trim() || !url.trim()) {
               toast.error("Informe título e URL.");
+              return;
+            }
+            if (limitReached) {
+              toast.error(`No plano Free você pode ter até ${FREE_LINK_LIMIT} links.`);
               return;
             }
             onChange([
@@ -381,6 +407,7 @@ function LinksPanel({
         >
           <Plus className="size-4" /> Adicionar
         </Button>
+
       </div>
 
       {links.length === 0 ? (
