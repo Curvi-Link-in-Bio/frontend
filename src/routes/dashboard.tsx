@@ -268,11 +268,13 @@ function Dashboard() {
 function LinksPanel({
   links,
   categories,
+  plan,
   onChange,
   onCategoriesChange,
 }: {
   links: CurviLink[];
   categories: string[];
+  plan: "free" | "pro";
   onChange: (links: CurviLink[]) => void;
   onCategoriesChange: (categories: string[]) => void;
 }) {
@@ -281,6 +283,8 @@ function LinksPanel({
   const [category, setCategory] = useState(categories[0] ?? "Geral");
   const [newCategory, setNewCategory] = useState("");
   const [creating, setCreating] = useState(false);
+  const limitReached = plan === "free" && links.length >= FREE_LINK_LIMIT;
+
 
   const update = (id: string, patch: Partial<CurviLink>) =>
     onChange(links.map((x) => (x.id === id ? { ...x, ...patch } : x)));
