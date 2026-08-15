@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlanCards } from "@/components/PlanCards";
 import { signIn, signInWithGoogle, signUp, resetPassword, useSession } from "@/lib/curvi";
+
 import { Crown, Link2, BarChart3, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
