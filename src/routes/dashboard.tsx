@@ -8,8 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUpload } from "@/components/ImageUpload";
+import { PlanCards } from "@/components/PlanCards";
 import {
   BACKGROUND_PRESETS,
+  FREE_LINK_LIMIT,
   THEMES,
   signOut,
   updateUser,
@@ -17,6 +19,7 @@ import {
   type CurviLink,
   type ThemeId,
 } from "@/lib/curvi";
+
 import { ArrowDown, ArrowUp, ExternalLink, LogOut, Plus, Trash2, X } from "lucide-react";
 import {
   Select,
