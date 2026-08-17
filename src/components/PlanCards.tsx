@@ -170,6 +170,9 @@ export function PlanCards({
         ) : currentPro ? (
           <div className="space-y-2">
             <p className="text-gold text-[11px] tracking-widest uppercase">Seu plano atual</p>
+            <p className="text-muted-foreground text-[11px]">
+              Ao cancelar, sua página volta ao Free: mantemos apenas os 3 primeiros links e os demais são excluídos.
+            </p>
             {onCancel ? (
               <Button variant="outline" className="border-silver/60 w-full" onClick={onCancel}>
                 Cancelar assinatura
