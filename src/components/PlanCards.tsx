@@ -12,16 +12,21 @@ export function PlanCards({
   selected,
   onSelect,
   selectionType = "button",
+  onSubscribe,
+  onCancel,
 }: {
   current?: Plan | undefined;
   selectable?: boolean;
   selected?: Plan | undefined;
   onSelect?: (plan: Plan) => void;
   selectionType?: "button" | "radio";
+  onSubscribe?: () => void;
+  onCancel?: () => void;
 }) {
   const { free, pro } = PLAN_FEATURES;
   const freeSelected = selected === "free";
   const proSelected = selected === "pro";
+
   if (selectionType === "radio" && selectable) {
     return (
       <RadioGroup value={selected} onValueChange={(v) => onSelect?.(v as Plan)} className="grid gap-4 md:grid-cols-2">
