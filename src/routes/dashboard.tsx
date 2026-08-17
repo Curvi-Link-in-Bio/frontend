@@ -247,31 +247,30 @@ function Dashboard() {
         </TabsContent>
 
 
+        <TabsContent value="metricas" className="mt-5">
+          <MetricsPanel links={user.links} plan={user.plan} />
+        </TabsContent>
+
         <TabsContent value="plano" className="mt-5 space-y-4">
           <p className="text-sm tracking-widest uppercase">
             Plano atual: <span className="text-gold">{user.plan === "pro" ? "PRO" : "FREE"}</span>
           </p>
-          <PlanCards current={user.plan} />
-          {user.plan === "pro" ? (
-            <Button
-              variant="outline"
-              className="border-silver/60 w-full"
-              onClick={() => save({ plan: "free", theme: "gold-noir", backgroundColor: "#18181B", buttonColor: "#D4AF37", backgroundImage: "" })}
-            >
-              Cancelar assinatura
-            </Button>
-          ) : (
-            <Button
-              className="gold-gradient text-primary-foreground glow w-full font-bold"
-              onClick={() => {
-                save({ plan: "pro", paymentMethod: "pagbank" });
-                toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
-              }}
-            >
-              Assinar PRO — R$ 19,90/mês
-            </Button>
-          )}
+          <PlanCards
+            current={user.plan}
+            onSubscribe={() => save({ plan: "pro", paymentMethod: "pagbank" })}
+            onCancel={() => {
+              save({
+                plan: "free",
+                theme: "gold-noir",
+                backgroundColor: "#18181B",
+                buttonColor: "#D4AF37",
+                backgroundImage: "",
+              });
+              toast("Assinatura cancelada. Você voltou ao plano Free.");
+            }}
+          />
         </TabsContent>
+
 
       </Tabs>
     </main>
