@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUpload } from "@/components/ImageUpload";
 import { PlanCards } from "@/components/PlanCards";
+import { MetricsPanel } from "@/components/MetricsPanel";
+
 import {
   BACKGROUND_PRESETS,
   FREE_LINK_LIMIT,
