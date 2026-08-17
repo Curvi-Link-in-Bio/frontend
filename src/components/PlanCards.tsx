@@ -29,7 +29,7 @@ export function PlanCards({
 
   if (selectionType === "radio" && selectable) {
     return (
-      <RadioGroup value={selected} onValueChange={(v) => onSelect?.(v as Plan)} className="grid gap-4 md:grid-cols-2">
+      <RadioGroup value={selected ?? ""} onValueChange={(v) => onSelect?.(v as Plan)} className="grid gap-4 md:grid-cols-2">
         <div
           className={`card-gold space-y-3 p-5 flex flex-col cursor-pointer ${
             freeSelected ? "border-gold/60 glow" : "border-border"
