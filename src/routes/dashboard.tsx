@@ -88,12 +88,14 @@ function Dashboard() {
       </header>
 
       <Tabs defaultValue="links">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="links">Links</TabsTrigger>
+          <TabsTrigger value="metricas">Métricas</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
           <TabsTrigger value="tema">Tema</TabsTrigger>
           <TabsTrigger value="plano">Plano</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="links" className="mt-5">
           <LinksPanel
