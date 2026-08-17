@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUpload } from "@/components/ImageUpload";
 import { PlanCards } from "@/components/PlanCards";
+import { MetricsPanel } from "@/components/MetricsPanel";
+
 import {
   BACKGROUND_PRESETS,
   FREE_LINK_LIMIT,
@@ -86,12 +88,14 @@ function Dashboard() {
       </header>
 
       <Tabs defaultValue="links">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="links">Links</TabsTrigger>
+          <TabsTrigger value="metricas">Métricas</TabsTrigger>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
           <TabsTrigger value="tema">Tema</TabsTrigger>
           <TabsTrigger value="plano">Plano</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="links" className="mt-5">
           <LinksPanel
@@ -247,31 +251,30 @@ function Dashboard() {
         </TabsContent>
 
 
+        <TabsContent value="metricas" className="mt-5">
+          <MetricsPanel links={user.links} plan={user.plan} />
+        </TabsContent>
+
         <TabsContent value="plano" className="mt-5 space-y-4">
           <p className="text-sm tracking-widest uppercase">
             Plano atual: <span className="text-gold">{user.plan === "pro" ? "PRO" : "FREE"}</span>
           </p>
-          <PlanCards current={user.plan} />
-          {user.plan === "pro" ? (
-            <Button
-              variant="outline"
-              className="border-silver/60 w-full"
-              onClick={() => save({ plan: "free", theme: "gold-noir", backgroundColor: "#18181B", buttonColor: "#D4AF37", backgroundImage: "" })}
-            >
-              Cancelar assinatura
-            </Button>
-          ) : (
-            <Button
-              className="gold-gradient text-primary-foreground glow w-full font-bold"
-              onClick={() => {
-                save({ plan: "pro", paymentMethod: "pagbank" });
-                toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
-              }}
-            >
-              Assinar PRO — R$ 19,90/mês
-            </Button>
-          )}
+          <PlanCards
+            current={user.plan}
+            onSubscribe={() => save({ plan: "pro", paymentMethod: "pagbank" })}
+            onCancel={() => {
+              save({
+                plan: "free",
+                theme: "gold-noir",
+                backgroundColor: "#18181B",
+                buttonColor: "#D4AF37",
+                backgroundImage: "",
+              });
+              toast("Assinatura cancelada. Você voltou ao plano Free.");
+            }}
+          />
         </TabsContent>
+
 
       </Tabs>
     </main>

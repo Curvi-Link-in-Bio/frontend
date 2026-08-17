@@ -12,19 +12,24 @@ export function PlanCards({
   selected,
   onSelect,
   selectionType = "button",
+  onSubscribe,
+  onCancel,
 }: {
   current?: Plan | undefined;
   selectable?: boolean;
   selected?: Plan | undefined;
   onSelect?: (plan: Plan) => void;
   selectionType?: "button" | "radio";
+  onSubscribe?: () => void;
+  onCancel?: () => void;
 }) {
   const { free, pro } = PLAN_FEATURES;
   const freeSelected = selected === "free";
   const proSelected = selected === "pro";
+
   if (selectionType === "radio" && selectable) {
     return (
-      <RadioGroup value={selected} onValueChange={(v) => onSelect?.(v as Plan)} className="grid gap-4 md:grid-cols-2">
+      <RadioGroup value={selected ?? ""} onValueChange={(v) => onSelect?.(v as Plan)} className="grid gap-4 md:grid-cols-2">
         <div
           className={`card-gold space-y-3 p-5 flex flex-col cursor-pointer ${
             freeSelected ? "border-gold/60 glow" : "border-border"
@@ -92,9 +97,16 @@ export function PlanCards({
     );
   }
 
+  const currentFree = !selectable && current === "free";
+  const currentPro = !selectable && current === "pro";
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className={`card-gold space-y-3 p-5 ${freeSelected ? "border-gold/60 glow" : ""}`}>
+      <div
+        className={`card-gold space-y-3 p-5 ${
+          freeSelected || currentFree ? "border-gold/60 glow ring-1 ring-gold/40" : ""
+        }`}
+      >
         <div className="flex items-baseline justify-between">
           <p className="text-sm tracking-widest uppercase">{free.name}</p>
           <span className="text-lg font-bold">{free.price}</span>
@@ -119,12 +131,16 @@ export function PlanCards({
               Selecionar Gratuito
             </Button>
           )
-        ) : current === "free" ? (
+        ) : currentFree ? (
           <p className="text-gold text-[11px] tracking-widest uppercase">Seu plano atual</p>
         ) : null}
       </div>
 
-      <div className={`card-gold space-y-3 p-5 ${proSelected ? "border-gold/60 glow" : ""}`}>
+      <div
+        className={`card-gold space-y-3 p-5 ${
+          proSelected || currentPro ? "border-gold/60 glow ring-1 ring-gold/40" : ""
+        }`}
+      >
         <div className="flex items-baseline justify-between">
           <p className="gold-text flex items-center gap-2 text-sm tracking-widest uppercase">
             <Crown className="size-4" /> {pro.name}
@@ -151,12 +167,22 @@ export function PlanCards({
               Selecionar PRO — {pro.price}
             </Button>
           )
-        ) : current === "pro" ? (
-          <p className="text-gold text-[11px] tracking-widest uppercase">Seu plano atual</p>
+        ) : currentPro ? (
+          <div className="space-y-2">
+            <p className="text-gold text-[11px] tracking-widest uppercase">Seu plano atual</p>
+            {onCancel ? (
+              <Button variant="outline" className="border-silver/60 w-full" onClick={onCancel}>
+                Cancelar assinatura
+              </Button>
+            ) : null}
+          </div>
         ) : (
           <Button
             className="gold-gradient text-primary-foreground glow w-full font-bold"
-            onClick={() => toast("Checkout externo: você será redirecionado ao PagBank.")}
+            onClick={() => {
+              toast("Checkout externo: você será redirecionado ao PagBank.");
+              onSubscribe?.();
+            }}
           >
             Assinar PRO — {pro.price}
           </Button>
@@ -165,3 +191,4 @@ export function PlanCards({
     </div>
   );
 }
+
