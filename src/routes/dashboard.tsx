@@ -263,14 +263,21 @@ function Dashboard() {
             current={user.plan}
             onSubscribe={() => save({ plan: "pro", paymentMethod: "pagbank" })}
             onCancel={() => {
+              const kept = user.links.slice(0, FREE_LINK_LIMIT);
+              const removed = user.links.length - kept.length;
               save({
                 plan: "free",
                 theme: "gold-noir",
                 backgroundColor: "#18181B",
                 buttonColor: "#D4AF37",
                 backgroundImage: "",
+                links: kept,
               });
-              toast("Assinatura cancelada. Você voltou ao plano Free.");
+              toast(
+                removed > 0
+                  ? `Assinatura cancelada. Mantivemos seus ${FREE_LINK_LIMIT} primeiros links e removemos ${removed}.`
+                  : "Assinatura cancelada. Você voltou ao plano Free.",
+              );
             }}
           />
         </TabsContent>

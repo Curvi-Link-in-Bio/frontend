@@ -334,6 +334,7 @@ export const PLAN_FEATURES: {
     price: "R$ 0",
     items: [
       "Até 3 links ativos na sua página",
+      "Ao cancelar o PRO, ficam apenas os 3 primeiros links (os demais são excluídos)",
       "Tema fixo Gold Noir (sem troca de tema)",
       "Sem personalização de cores e fundo",
       "Contagem de cliques dos links",
