@@ -63,8 +63,9 @@ function Landing() {
       <section className="mx-auto max-w-md px-5 pt-6 pb-16">
         <div className="mb-10 text-center">
           <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-gold/40 px-3 py-1 text-xs tracking-widest text-gold uppercase">
-            <Sparkles className="size-3" /> Plus size & criadoras
+            <Sparkles className="size-3" /> Para criadores e negócios
           </p>
+
           <h1 className="text-3xl leading-tight uppercase">
             Todos os seus links em uma <span className="gold-text">página de ouro</span>
           </h1>
