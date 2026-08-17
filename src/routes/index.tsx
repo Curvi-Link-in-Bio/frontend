@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlanCards } from "@/components/PlanCards";
-import { signIn, signInWithGoogle, signUp, resetPassword, useSession } from "@/lib/curvi";
+import { signIn, signUp, resetPassword, useSession, updateUser } from "@/lib/curvi";
 
 import { Crown, Link2, BarChart3, Sparkles } from "lucide-react";
 
@@ -38,6 +38,8 @@ function Landing() {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [recoverMode, setRecoverMode] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<"free" | "pro">("free");
 
   function handle(fn: () => void) {
     try {
@@ -182,13 +184,38 @@ function Landing() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="s-pass-confirm">Confirme a senha</Label>
+                  <Input
+                    id="s-pass-confirm"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <h2 className="text-sm tracking-widest uppercase">Planos</h2>
+                  <PlanCards
+                    selectable
+                    selectionType="radio"
+                    selected={selectedPlan}
+                    onSelect={(p) => setSelectedPlan(p)}
+                  />
+                </div>
                 <Button
                   className="gold-gradient text-primary-foreground glow w-full font-bold"
                   onClick={() =>
                     handle(() => {
-                      if (!username || !email || !password)
+                      if (!username || !email || !password || !confirmPassword)
                         throw new Error("Preencha todos os campos.");
-                      signUp(email, password, username);
+                      if (password !== confirmPassword) throw new Error("Senhas não conferem.");
+                      const created = signUp(email, password, username);
+                      if (selectedPlan === "pro") {
+                        updateUser(created.id, { plan: "pro", paymentMethod: "pagbank" });
+                        toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
+                      }
                       navigate({ to: "/dashboard" });
                     })
                   }
@@ -199,23 +226,7 @@ function Landing() {
             </Tabs>
           )}
 
-          <div className="my-5 flex items-center gap-3">
-            <div className="bg-border h-px flex-1" />
-            <span className="text-muted-foreground text-[10px] tracking-widest uppercase">ou</span>
-            <div className="bg-border h-px flex-1" />
-          </div>
-          <Button
-            variant="outline"
-            className="border-silver/60 w-full"
-            onClick={() =>
-              handle(() => {
-                signInWithGoogle();
-                navigate({ to: "/dashboard" });
-              })
-            }
-          >
-            Continuar com Google
-          </Button>
+          {/* Google SSO temporariamente removido */}
         </div>
 
         <div className="mt-10 grid gap-3">
@@ -234,10 +245,7 @@ function Landing() {
           ))}
         </div>
 
-        <div className="mt-10 space-y-4">
-          <h2 className="text-center text-sm tracking-[0.25em] uppercase">Planos</h2>
-          <PlanCards current={user?.plan} />
-        </div>
+        {/* Planos removidos da tela inicial */}
 
         <p className="text-muted-foreground mt-8 text-center text-xs">
 

@@ -82,6 +82,46 @@ const REVIEWS_KEY = "curvi.reviews";
 const SESSION_KEY = "curvi.session";
 const EVENT = "curvi:change";
 
+const PENDING_KEY = "curvi.pendingCheckout";
+
+export type PendingCheckout = {
+  userId: string;
+  plan: "pro" | "free";
+  createdAt: number;
+};
+
+export function setPendingCheckout(userId: string, plan: "pro" | "free") {
+  if (!isBrowser()) return null;
+  const payload: PendingCheckout = { userId, plan, createdAt: Date.now() };
+  localStorage.setItem(PENDING_KEY, JSON.stringify(payload));
+  window.dispatchEvent(new Event(EVENT));
+  return payload;
+}
+
+export function getPendingCheckout(): PendingCheckout | null {
+  if (!isBrowser()) return null;
+  try {
+    return JSON.parse(localStorage.getItem(PENDING_KEY) ?? "null") as PendingCheckout | null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearPendingCheckout() {
+  if (!isBrowser()) return;
+  localStorage.removeItem(PENDING_KEY);
+  window.dispatchEvent(new Event(EVENT));
+}
+
+export function finalizePendingCheckout(userId: string, paymentMethod = "pagbank") {
+  const pending = getPendingCheckout();
+  if (!pending || pending.userId !== userId) return false;
+  updateUser(userId, { plan: pending.plan, paymentMethod });
+  clearPendingCheckout();
+  window.dispatchEvent(new Event(EVENT));
+  return true;
+}
+
 function isBrowser() {
   return typeof window !== "undefined";
 }

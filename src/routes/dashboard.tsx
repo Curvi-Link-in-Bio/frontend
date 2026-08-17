@@ -151,8 +151,11 @@ function Dashboard() {
                 No plano Free sua página usa o tema padrão <span className="text-gold">Gold Noir</span>.
                 Assine o PRO para trocar de tema, personalizar cores e usar imagem de fundo.
               </p>
-              <Button asChild className="gold-gradient text-primary-foreground glow w-full font-bold">
-                <Link to="/checkout">Assinar PRO — R$ 19,90/mês</Link>
+              <Button
+                className="gold-gradient text-primary-foreground glow w-full font-bold"
+                onClick={() => toast("Checkout externo: você será redirecionado ao PagBank.")}
+              >
+                Assinar PRO — R$ 19,90/mês
               </Button>
             </div>
           ) : null}
@@ -257,7 +260,17 @@ function Dashboard() {
             >
               Cancelar assinatura
             </Button>
-          ) : null}
+          ) : (
+            <Button
+              className="gold-gradient text-primary-foreground glow w-full font-bold"
+              onClick={() => {
+                save({ plan: "pro", paymentMethod: "pagbank" });
+                toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
+              }}
+            >
+              Assinar PRO — R$ 19,90/mês
+            </Button>
+          )}
         </TabsContent>
 
       </Tabs>
@@ -370,9 +383,13 @@ function LinksPanel({
         {limitReached ? (
           <p className="text-gold text-xs">
             Limite do plano Free atingido ({FREE_LINK_LIMIT} links).{" "}
-            <Link to="/checkout" className="underline">
+            <button
+              type="button"
+              className="underline"
+              onClick={() => toast("Checkout externo: você será redirecionado ao PagBank.")}
+            >
               Assine o PRO
-            </Link>{" "}
+            </button>{" "}
             para links ilimitados.
           </p>
         ) : null}
