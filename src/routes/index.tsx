@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { PlanCards } from "@/components/PlanCards";
 import { signIn, signUp, resetPassword, useSession, updateUser } from "@/lib/curvi";
 
 import { Crown, Link2, BarChart3, Sparkles } from "lucide-react";
+import useGet from "@/hooks/use-get";
+import usePost from "@/hooks/use-post";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -208,16 +210,22 @@ function Landing() {
                 <Button
                   className="gold-gradient text-primary-foreground glow w-full font-bold"
                   onClick={() =>
-                    handle(() => {
-                      if (!username || !email || !password || !confirmPassword)
-                        throw new Error("Preencha todos os campos.");
-                      if (password !== confirmPassword) throw new Error("Senhas não conferem.");
-                      const created = signUp(email, password, username);
-                      if (selectedPlan === "pro") {
-                        updateUser(created.id, { plan: "pro", paymentMethod: "pagbank" });
-                        toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
+                    handle(async () => {
+                      // if (!username || !email || !password || !confirmPassword)
+                      //   throw new Error("Preencha todos os campos.");
+                      // if (password !== confirmPassword) throw new Error("Senhas não conferem.");
+                      // const created = signUp(email, password, username);
+                      // if (selectedPlan === "pro") {
+                      //   updateUser(created.id, { plan: "pro", paymentMethod: "pagbank" });
+                      //   toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
+                      // }
+                      // navigate({ to: "/dashboard" });
+                      const response = await usePost('/auth/signup', { username, email, password, confirmPassword, selectedPlan });
+                      if (!response || response.error) {
+                        toast(`Erro ao criar usuário: ${response?.error || 'Resposta inválida'}`);
+                        return;
                       }
-                      navigate({ to: "/dashboard" });
+                      toast('Usuário criado com sucesso');
                     })
                   }
                 >
