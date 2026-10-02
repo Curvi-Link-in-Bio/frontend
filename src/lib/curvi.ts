@@ -1,4 +1,10 @@
+import { TOKEN_KEY } from "@/enums/token";
+import usePatch from "@/hooks/use-patch";
+import usePost from "@/hooks/use-post";
+import { TUser } from "@/types/user";
+import { User } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export type CurviLink = {
   id: string;
@@ -23,24 +29,25 @@ export type CurviReview = {
 
 export type ThemeId = "gold-noir" | "champagne" | "onyx-silver" | "rose-gold";
 
-export type CurviUser = {
-  id: string;
-  email: string;
-  password: string;
-  username: string;
-  displayName: string;
-  bio: string;
-  avatar: string;
-  theme: ThemeId;
-  buttonColor: string;
-  backgroundColor: string;
-  /** CSS background-image value: url("data:...") or a gradient */
-  backgroundImage: string;
-  plan: "free" | "pro";
-  paymentMethod?: string;
-  links: CurviLink[];
-  categories: string[];
-};
+export type CurviUser = TUser;
+// export type CurviUser = {
+//   id: string;
+//   email: string;
+//   password: string;
+//   username: string;
+//   displayName: string;
+//   bio: string;
+//   avatar: string;
+//   theme: ThemeId;
+//   buttonColor: string;
+//   backgroundColor: string;
+//   /** CSS background-image value: url("data:...") or a gradient */
+//   backgroundImage: string;
+//   plan: "free" | "pro";
+//   paymentMethod?: string;
+//   links: CurviLink[];
+//   categories: string[];
+// };
 
 export const THEMES: { id: ThemeId; name: string; bg: string; button: string }[] = [
   { id: "gold-noir", name: "Gold Noir", bg: "#18181B", button: "#D4AF37" },
@@ -113,10 +120,10 @@ export function clearPendingCheckout() {
   window.dispatchEvent(new Event(EVENT));
 }
 
-export function finalizePendingCheckout(userId: string, paymentMethod = "pagbank") {
+export async function finalizePendingCheckout(userId: string, paymentMethod = "pagbank") {
   const pending = getPendingCheckout();
   if (!pending || pending.userId !== userId) return false;
-  updateUser(userId, { plan: pending.plan, paymentMethod });
+  await updateUser(userId);
   clearPendingCheckout();
   window.dispatchEvent(new Event(EVENT));
   return true;
@@ -145,72 +152,107 @@ function writeUsers(users: CurviUser[]) {
   window.dispatchEvent(new Event(EVENT));
 }
 
+/**
+ * @deprecated Devido a remoção de dados mockados;
+ */
 function seedIfEmpty() {
-  if (!isBrowser()) return;
-  if (localStorage.getItem(DB_KEY)) return;
-  const demo: CurviUser = {
-    id: "demo",
-    email: "demo@curvi.link",
-    password: "curvi123",
-    username: "curvidemo",
-    displayName: "Bianca Curvy",
-    bio: "Criadora de conteúdo plus size ✨ Moda, autoestima e parcerias.",
-    avatar: "",
-    theme: "gold-noir",
-    buttonColor: "#D4AF37",
-    backgroundColor: "#18181B",
-    backgroundImage: "",
-    plan: "free",
-    categories: [...DEFAULT_CATEGORIES],
-    links: [
-      { id: "l1", title: "Meu Instagram", url: "https://instagram.com", active: true, clicks: 128, category: "Redes Sociais" },
-      { id: "l2", title: "Loja Plus Size", url: "https://example.com/loja", active: true, clicks: 64, category: "Produtos" },
-      { id: "l3", title: "Consultoria de Estilo", url: "https://example.com/consultoria", active: false, clicks: 12, category: "Conteúdo" },
-    ],
-  };
-  localStorage.setItem(DB_KEY, JSON.stringify([demo]));
+  // if (!isBrowser()) return;
+  // if (localStorage.getItem(DB_KEY)) return;
+  // const demo: CurviUser = {
+  //   id: "demo",
+  //   email: "demo@curvi.link",
+  //   password: "curvi123",
+  //   username: "curvidemo",
+  //   displayName: "Bianca Curvy",
+  //   bio: "Criadora de conteúdo plus size ✨ Moda, autoestima e parcerias.",
+  //   avatar: "",
+  //   theme: "gold-noir",
+  //   buttonColor: "#D4AF37",
+  //   backgroundColor: "#18181B",
+  //   backgroundImage: "",
+  //   plan: "free",
+  //   categories: [...DEFAULT_CATEGORIES],
+  //   links: [
+  //     { id: "l1", title: "Meu Instagram", url: "https://instagram.com", active: true, clicks: 128, category: "Redes Sociais" },
+  //     { id: "l2", title: "Loja Plus Size", url: "https://example.com/loja", active: true, clicks: 64, category: "Produtos" },
+  //     { id: "l3", title: "Consultoria de Estilo", url: "https://example.com/consultoria", active: false, clicks: 12, category: "Conteúdo" },
+  //   ],
+  // };
+  // localStorage.setItem(DB_KEY, JSON.stringify([demo]));
 }
 
 export function getUserByUsername(username: string) {
   return readUsers().find((u) => u.username.toLowerCase() === username.toLowerCase()) ?? null;
 }
 
-export function signUp(email: string, password: string, username: string) {
-  const users = readUsers();
-  if (users.some((u) => u.email.toLowerCase() === email.toLowerCase()))
-    throw new Error("E-mail já cadastrado.");
-  if (users.some((u) => u.username.toLowerCase() === username.toLowerCase()))
-    throw new Error("Este username já está em uso.");
-  const user: CurviUser = {
-    id: crypto.randomUUID(),
-    email,
-    password,
-    username,
-    displayName: username,
-    bio: "",
-    avatar: "",
-    theme: "gold-noir",
-    buttonColor: "#D4AF37",
-    backgroundColor: "#18181B",
-    backgroundImage: "",
-    plan: "free",
-    links: [],
-    categories: [...DEFAULT_CATEGORIES],
-  };
-  writeUsers([...users, user]);
-  localStorage.setItem(SESSION_KEY, user.id);
+export async function signUp(email: string, password: string, username: string) {
+  // const users = readUsers();
+  // if (users.some((u) => u.email.toLowerCase() === email.toLowerCase()))
+  //   throw new Error("E-mail já cadastrado.");
+  // if (users.some((u) => u.username.toLowerCase() === username.toLowerCase()))
+  //   throw new Error("Este username já está em uso.");
+  // const user: CurviUser = {
+  //   id: crypto.randomUUID(),
+  //   email,
+  //   password,
+  //   username,
+  //   displayName: username,
+  //   bio: "",
+  //   avatar: "",
+  //   theme: "gold-noir",
+  //   buttonColor: "#D4AF37",
+  //   backgroundColor: "#18181B",
+  //   backgroundImage: "",
+  //   plan: "free",
+  //   links: [],
+  //   categories: [...DEFAULT_CATEGORIES],
+  // };
+  // writeUsers([...users, user]);
+  // localStorage.setItem(SESSION_KEY, user.id);
+  // window.dispatchEvent(new Event(EVENT));
+  // return user;
+  const { data: user, error, errorMessage } = await usePost<TUser>(`/auth/signup`, { username, email, password });
+  console.log('Debug: user >> ', user);
+  console.log('Debug: error >> ', error);
+  console.log('Debug: errorMessage >> ', errorMessage);
+  if (error) {
+    throw new Error(errorMessage);
+  }
+  const { data: userAuth, error: userAuthError, errorMessage: userAuthErrorMessage } = await usePost<{ user: TUser, token: string }>(`/auth/signin`, { email, password });
+  if (userAuthError) {
+    throw new Error(userAuthErrorMessage);
+  }
+  localStorage.clear();
+  writeUsers([userAuth.user]);
+  localStorage.setItem(SESSION_KEY, userAuth.user.id);
+  localStorage.setItem(TOKEN_KEY, userAuth.token);
   window.dispatchEvent(new Event(EVENT));
-  return user;
+  return userAuth.user;
 }
 
-export function signIn(email: string, password: string) {
-  const user = readUsers().find(
-    (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password,
-  );
-  if (!user) throw new Error("E-mail ou senha inválidos.");
-  localStorage.setItem(SESSION_KEY, user.id);
+export async function signIn(email: string, password: string) {
+  //const user = readUsers().find(
+  //  (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password,
+  //);
+  //if (!user) throw new Error("E-mail ou senha inválidos.");
+  //localStorage.setItem(SESSION_KEY, user.id);
+  //window.dispatchEvent(new Event(EVENT));
+  //return user;
+  const { data, error, errorMessage } = await usePost<{ user: TUser, token: string }>(`/auth/signin`, { email, password });
+  console.log('Debug: email >> ', email);
+  console.log('Debug: password >> ', password);
+  console.log('Debug: data >> ', data);
+  console.log('Debug: error >> ', error);
+  console.log('Debug: errorMessage >> ', errorMessage);
+  if (error) {
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+  localStorage.clear();
+  writeUsers([data.user]);
+  localStorage.setItem(SESSION_KEY, data.user.id);
   window.dispatchEvent(new Event(EVENT));
-  return user;
+  return data.user as TUser;
 }
 
 export function signInWithGoogle() {
@@ -224,31 +266,45 @@ export function signInWithGoogle() {
   return signUp("google.user@curvi.link", crypto.randomUUID(), `criadora${users.length + 1}`);
 }
 
-export function resetPassword(email: string, newPassword: string) {
-  const users = readUsers();
-  const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
-  if (!user) throw new Error("E-mail não encontrado.");
-  user.password = newPassword;
-  writeUsers(users);
+export async function resetPassword(email: string) {
+  // const users = readUsers();
+  // const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  // if (!user) throw new Error("E-mail não encontrado.");
+  // user.password = newPassword;
+  // writeUsers(users);
+  const { data, error, errorMessage } = await usePost(`/auth/reset-password`, { email });
+  if (error) {
+    throw new Error(errorMessage);
+  }
+  toast.success("Email de recuperação de senha enviado com sucesso.");
 }
 
 export function signOut() {
-  localStorage.removeItem(SESSION_KEY);
+  // localStorage.removeItem(SESSION_KEY);
+  // window.dispatchEvent(new Event(EVENT));
+  localStorage.clear();
   window.dispatchEvent(new Event(EVENT));
 }
 
-export function updateUser(id: string, patch: Partial<CurviUser>) {
-  const users = readUsers();
-  const idx = users.findIndex((u) => u.id === id);
-  if (idx < 0) return;
-  if (patch.username) {
-    const taken = users.some(
-      (u) => u.id !== id && u.username.toLowerCase() === patch.username!.toLowerCase(),
-    );
-    if (taken) throw new Error("Este username já está em uso.");
+// export function updateUser(id: string, patch: Partial<CurviUser>) {
+export async function updateUser(id: string) {
+  // const users = readUsers();
+  // const idx = users.findIndex((u) => u.id === id);
+  // if (idx < 0) return;
+  // if (patch.username) {
+  //   const taken = users.some(
+  //     (u) => u.id !== id && u.username.toLowerCase() === patch.username!.toLowerCase(),
+  //   );
+  //   if (taken) throw new Error("Este username já está em uso.");
+  // }
+  // users[idx] = { ...(users[idx] as CurviUser), ...patch };
+  // writeUsers(users);
+  const { data: user, error, errorMessage } = await usePatch<TUser>(`/user/${id}`, { plan: 'pro' });
+  if (error) {
+    toast.error(errorMessage);
+    throw new Error(errorMessage);
   }
-  users[idx] = { ...(users[idx] as CurviUser), ...patch };
-  writeUsers(users);
+  writeUsers([user]);
 }
 
 export function registerClick(username: string, linkId: string) {

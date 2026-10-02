@@ -1,6 +1,7 @@
-import { Link } from "./link";
+import { TLink } from "./link";
+import { TPlan } from "./plan";
 
-export type User = {
+export type TUser = {
     id:string;
     email: string;
     username: string;
@@ -11,8 +12,8 @@ export type User = {
     buttonColor: string;
     backgroundColor: string;
     backgroundImageUrl: string | null;
-    plan: 'free' | 'pro';
+    plan: TPlan;
     paymentMethod: string;
     categories: string[];
-    links: Link[];
+    links: TLink[];
 }

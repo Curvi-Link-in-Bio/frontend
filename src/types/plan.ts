@@ -1,0 +1,1 @@
+export type TPlan = 'free' | 'pro';

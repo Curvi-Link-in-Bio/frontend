@@ -43,9 +43,9 @@ function Landing() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<"free" | "pro">("free");
 
-  function handle(fn: () => void) {
+  async function handle(fn: () => Promise<void> | void) {
     try {
-      fn();
+      await fn();
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -85,7 +85,7 @@ function Landing() {
                 <Label htmlFor="r-email">E-mail</Label>
                 <Input id="r-email" value={email} onChange={(e) => setEmail(e.target.value)} />
               </div>
-              <div className="space-y-2">
+              {/**<div className="space-y-2">
                 <Label htmlFor="r-pass">Nova senha</Label>
                 <Input
                   id="r-pass"
@@ -93,13 +93,13 @@ function Landing() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-              </div>
+              </div> */}
               <Button
                 className="gold-gradient text-primary-foreground glow w-full font-bold"
                 onClick={() =>
                   handle(() => {
-                    resetPassword(email, password);
-                    toast.success("Senha redefinida. Faça login.");
+                    resetPassword(email);
+                    // toast.success("Senha redefinida. Faça login.");
                     setRecoverMode(false);
                   })
                 }
@@ -143,8 +143,8 @@ function Landing() {
                 <Button
                   className="gold-gradient text-primary-foreground glow w-full font-bold"
                   onClick={() =>
-                    handle(() => {
-                      signIn(email, password);
+                    handle(async () => {
+                      await signIn(email, password);
                       navigate({ to: "/dashboard" });
                     })
                   }
@@ -211,21 +211,15 @@ function Landing() {
                   className="gold-gradient text-primary-foreground glow w-full font-bold"
                   onClick={() =>
                     handle(async () => {
-                      // if (!username || !email || !password || !confirmPassword)
-                      //   throw new Error("Preencha todos os campos.");
-                      // if (password !== confirmPassword) throw new Error("Senhas não conferem.");
-                      // const created = signUp(email, password, username);
-                      // if (selectedPlan === "pro") {
-                      //   updateUser(created.id, { plan: "pro", paymentMethod: "pagbank" });
-                      //   toast("Assinatura PRO ativada (simulação). Você será redirecionado ao PagBank.");
-                      // }
-                      // navigate({ to: "/dashboard" });
-                      const response = await usePost('/auth/signup', { username, email, password, confirmPassword, selectedPlan });
-                      if (!response || response.error) {
-                        toast(`Erro ao criar usuário: ${response?.error || 'Resposta inválida'}`);
-                        return;
+                      if (!username || !email || !password || !confirmPassword)
+                        throw new Error("Preencha todos os campos.");
+                      if (password !== confirmPassword) throw new Error("Senhas não conferem.");
+                      const created = await signUp(email, password, username);
+                      console.log('Debug: passou aqui');
+                      if (selectedPlan === "pro" && created) {
+                        updateUser(created.id);
                       }
-                      toast('Usuário criado com sucesso');
+                      navigate({ to: "/dashboard" });
                     })
                   }
                 >
